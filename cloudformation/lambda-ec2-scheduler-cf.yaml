@@ -1,10 +1,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Lambda EC2 Scheduler
+
 Parameters:
   MemorySize:
     Description: Memory size of Lambda function.
-    Type: Integer
-    Default: 256
+    Type: Number
+    Default: 1024
   Schedule:
     Description: Schedule for how often to run lambda-ec2-operator function. CWE Scheduled Expression or Cron format
     Type: String
@@ -15,6 +16,7 @@ Parameters:
   S3Key:
     Description: Location and name of .zip file that contains your source code. e.g. solutions/scheduler-lambda-function.zip
     Type: String
+    
 Resources:
   ec2SchedulerRole:
     Type: AWS::IAM::Role

@@ -1,7 +1,7 @@
 # lambda-ec2-scheduler
 ## Schedule your EC2 instances with the flexibility of Cron
 
-lambda-ec2-scheduler allows you to run a lean, multi-threaded EC2 scheduling service powered by AWS Lambda and CloudWatch Events. Scheduling for each EC2 instance is performed based on its assigned Cron values, giving you the upmost flexibility for configuring your start & stop times.
+lambda-ec2-scheduler allows you to run a lean, multi-threaded EC2 scheduling service powered by AWS Lambda and CloudWatch Events. Scheduling for each EC2 instance is based on Cron values, giving you the upmost flexibility for configuring your start & stop times.
 
 Once deployed, the scheduler requires virtually zero maintenance and annual costs should remain less than $10 for running in enterprise-size environments.
 
@@ -15,14 +15,14 @@ CloudFormation Template
 
 ## Usage
 
-Once the service is deployed through CloudFormation the Lambda function will automatically run on a user-defined schedule (every 5 mins recommended) and scan all EC2 instances for a tag named **auto**. If an instance has the **auto** tag, Lambda will read the tag's start/stop values and perform the action if the Cron value is within the valid timeframe.
+Once the service is deployed through CloudFormation, the Lambda function will automatically run on a user-defined schedule (every 5 mins recommended) and scan all EC2 instances for a tag named **auto**. If an instance has the **auto** tag, Lambda will read the tag's start/stop values and perform the action if the Cron value is within the valid timeframe.
 
 #### Valid timeframes
-The scheduler is configured to perform start/stop actions within valid timeframes to provide a safety net in case of unforeseeable events like AWS service disruption or tag misconfiguration.
+The scheduler is configured to perform start actions within valid timeframes to provide a safety net in case of unforeseeable events like AWS service disruption or tag misconfiguration.
 
 The default timeframe to start instances is configured as *current time + 10 mins*. This means the scheduler may start the instance up to 10 mins earlier than its scheduled Cron time.
 
-The default timeframe to stop instances is set to *launch time < current time - 50 mins*. This means the scheduler will stop the instance at the scheduled time as long as the launch time was not within the past 50 mins.
+The default timeframe to stop instances is *zero*, which means it will stop the instance immediately when the scheduler executes.
 
 These values can be updated in the Lambda file to fit your requirements.
 
@@ -30,10 +30,11 @@ These values can be updated in the Lambda file to fit your requirements.
 The only action needed to add or remove an EC2 instance to the scheduling service is to update its **auto** tag.
 
 #### Configuring the tag
-For each instance that is to be scheduled, the format of its **auto** tag value should be:
-
-`start=0 8 * * 1-5;stop=0 17 * * 1-5`
-
+Each instance to be scheduled should have the format below for its **auto** tag:
+```
+Tag:      Value:
+auto      start=0 8 * * 1-5;stop=0 17 * * 1-5
+```
 *This example indicates the instance should start at 8:00 and stop at 17:00 every day of the week, Monday through Friday.*
 
 ## FAQ
@@ -59,4 +60,4 @@ The scheduler processes each region asynchronously. increase the memory size of 
 
 ## License
 [MIT License](../master/LICENSE)
-© Rohan Topiwala
+© 2016 Rohan Topiwala

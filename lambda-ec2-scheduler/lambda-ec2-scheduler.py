@@ -27,7 +27,7 @@ def scheduler(region):
 
                 for action in ['start', 'stop']:
                     try:
-                        cron[action] = croniter(auto_items[action], now) if action in auto_items else False
+                        cron[action] = (croniter(auto_items[action], now) if action in auto_items else False)
                     except Exception as e:
                         print "$s -- Invalid %s cron value for %s : %s" % (region, action, instance.id, e)
                         cron[action] = False
@@ -39,7 +39,7 @@ def scheduler(region):
                     except Exception as e:
                         print "%s -- Error starting %s : %s" % (region, instance.id, e)
 
-                elif cron['stop'] and instance.state['Name'] == 'running' and instance.launch_time <= now - timedelta(0, 3000) <= cron['stop'].get_prev(datetime) <= now:
+                elif cron['stop'] and instance.state['Name'] == 'running':
                     try:
                         print "%s -- Stopping %s based on schedule: %s" % (region, instance.id, auto_items['stop'])
                         instance.stop()
@@ -52,12 +52,11 @@ def scheduler(region):
         print "Error in region %s : %s" % (region, e)
 
 def lambda_handler(event, context):
-
     ec2 = boto3.client('ec2')
     awsRegions = ec2.describe_regions()['Regions']
     regions = [r['RegionName'] for r in awsRegions]
 
-    print "-- Starting EC2 Scheduler -----"
+    print "-- Starting EC2 Scheduler"
 
     with ThreadPoolExecutor(10) as executor:
         executor.map(scheduler, regions)
