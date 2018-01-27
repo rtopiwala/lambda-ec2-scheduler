@@ -22,7 +22,7 @@ The scheduler is configured to perform start actions within valid timeframes to 
 
 The default timeframe to start instances is configured as *current time + 10 mins*. This means the scheduler may start the instance up to 10 mins earlier than its scheduled Cron time.
 
-The default timeframe to stop instances is *zero*, which means it will stop the instance immediately when the scheduler executes.
+The default timeframe to stop instances is *current time - 10 mins*, which means it will stop the instance if the scheduled stop time is within the past 10 mins of the scheduler execution.
 
 These values can be updated in the Lambda file to fit your requirements.
 

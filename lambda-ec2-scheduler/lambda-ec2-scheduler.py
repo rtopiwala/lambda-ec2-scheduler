@@ -39,7 +39,7 @@ def scheduler(region):
                     except Exception as e:
                         print "%s -- Error starting %s : %s" % (region, instance.id, e)
 
-                elif cron['stop'] and instance.state['Name'] == 'running':
+                elif cron['stop'] and instance.state['Name'] == 'running'  and now - timedelta(0, 600) <= cron['stop'].get_prev(datetime) <= now:
                     try:
                         print "%s -- Stopping %s based on schedule: %s" % (region, instance.id, auto_items['stop'])
                         instance.stop()
