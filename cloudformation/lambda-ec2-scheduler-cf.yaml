@@ -65,7 +65,7 @@ Resources:
           Ref: S3Bucket
         S3Key:
           Ref: S3Key
-      Runtime: python2.7
+      Runtime: python3.6
       Timeout: 60
   ScheduledRule:
     Type: AWS::Events::Rule

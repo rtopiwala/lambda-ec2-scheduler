@@ -14,7 +14,7 @@ def scheduler(region):
     ]
 
     try:
-        print "-- Connecting to region %s" % (region)
+        print(f'-- Connecting to region {region}')
         ec2 = boto3.resource('ec2', region)
         now = datetime.now(tzutc())
         instance_list = ec2.instances.filter(Filters=auto_filter)
@@ -28,35 +28,35 @@ def scheduler(region):
                 for action in ['start', 'stop']:
                     try:
                         cron[action] = (croniter(auto_items[action], now) if action in auto_items else False)
-                    except Exception as e:
-                        print "$s -- Invalid %s cron value for %s : %s" % (region, action, instance.id, e)
+                    except Exception as err:
+                        print(f'{region} -- Invalid {action} cron value for {instance.id} : {err}')
                         cron[action] = False
 
                 if cron['start'] and instance.state['Name'] == 'stopped' and now <= cron['start'].get_next(datetime) <= now + timedelta(0, 600):
                     try:
-                        print "%s -- Starting %s based on schedule: %s" % (region, instance.id, auto_items['start'])
+                        print(f'{region} -- Starting {instance.id} based on schedule: {auto_items["start"]}')
                         instance.start()
-                    except Exception as e:
-                        print "%s -- Error starting %s : %s" % (region, instance.id, e)
+                    except Exception as err:
+                        print(f'{region} -- Error starting {instance.id} : {err}')
 
                 elif cron['stop'] and instance.state['Name'] == 'running'  and now - timedelta(0, 600) <= cron['stop'].get_prev(datetime) <= now:
                     try:
-                        print "%s -- Stopping %s based on schedule: %s" % (region, instance.id, auto_items['stop'])
+                        print(f'{region} -- Stopping {instance.id} based on schedule: {auto_items["stop"]}')
                         instance.stop()
-                    except Exception as e:
-                        print "%s -- Error stopping %s : %s" % (region, instance.id, e)
+                    except Exception as err:
+                        print(f'{region} -- Error stopping {instance.id} : {err}')
 
-            except Exception as e:
-                print "%s -- Error processing instance %s : %s" % (region, instance.id, e)
-    except Exception as e:
-        print "Error in region %s : %s" % (region, e)
+            except Exception as err:
+                print(f'{region} -- Error processing instance {instance.id} : {err}')
+    except Exception as err:
+        print(f'Error in region {region} : {err}')
 
 def lambda_handler(event, context):
     ec2 = boto3.client('ec2')
     awsRegions = ec2.describe_regions()['Regions']
     regions = [r['RegionName'] for r in awsRegions]
 
-    print "-- Starting EC2 Scheduler"
+    print('-- Starting EC2 Scheduler')
 
     with ThreadPoolExecutor(10) as executor:
         executor.map(scheduler, regions)
